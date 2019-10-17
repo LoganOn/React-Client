@@ -35,7 +35,7 @@
                             </font>
                         </Label>
                         <Button mnemonicParsing="false" onAction="#editToken" prefHeight="30.0" prefWidth="90.0" text="Edycja" GridPane.columnIndex="2" />
-                        <ChoiceBox prefHeight="30.0" prefWidth="314.0" GridPane.columnIndex="1" />
+                        <ChoiceBox fx:id="producentChoiceBox" prefHeight="30.0" prefWidth="314.0" GridPane.columnIndex="1" />
                     </children>
                     <VBox.margin>
                         <Insets bottom="20.0" top="20.0" />
@@ -50,7 +50,7 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Dla producenta Grohe zaktualizowane zostaną następujące pola: opis, zdjecia ..." textAlignment="CENTER" wrappingWidth="553.13671875">
+                  <Text fx:id="producentText" strokeType="OUTSIDE" strokeWidth="0.0" text="Dla producenta Grohe zaktualizowane zostaną następujące pola: opis, zdjecia ..." textAlignment="CENTER" wrappingWidth="553.13671875">
                      <GridPane.margin>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </GridPane.margin>
@@ -73,7 +73,7 @@
                     <children>
                         <Button mnemonicParsing="false" onAction="#chooseFile" prefHeight="30.0" prefWidth="90.0" text="Wybierz plik" />
                         <Button mnemonicParsing="false" onAction="#uploadFile" prefHeight="30.0" prefWidth="90.0" text="Załaduj plik" GridPane.columnIndex="2" />
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Załadowano plik xxxyyy.csv" GridPane.columnIndex="1">
+                  <Text fx:id="loadFileText" strokeType="OUTSIDE" strokeWidth="0.0" text="Załadowano plik xxxyyy.csv" GridPane.columnIndex="1">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -98,7 +98,7 @@
                                 <Font size="18.0" />
                             </font>
                         </Label>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Znaleziono X produktów" GridPane.columnIndex="1">
+                  <Text fx:id="logText" strokeType="OUTSIDE" strokeWidth="0.0" text="Znaleziono X produktów" GridPane.columnIndex="1">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -117,7 +117,7 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <TextArea editable="false" prefHeight="251.0" prefWidth="580.0" promptText="Logowanie zdarzen w czasie rzeczywistym">
+                  <TextArea fx:id="logBookTextArea" editable="false" prefHeight="251.0" prefWidth="580.0" promptText="Logowanie zdarzen w czasie rzeczywistym">
                      <opaqueInsets>
                         <Insets left="10.0" right="10.0" />
                      </opaqueInsets>
