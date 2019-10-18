@@ -17,6 +17,7 @@ import java.io.File;
 
 public class BorderMainController {
     ObservableList producentList = FXCollections.observableArrayList("Cersanit", "Grohe");
+    File selectedFile;
     @FXML
     private ChoiceBox producentChoiceBox;
     @FXML
@@ -27,11 +28,13 @@ public class BorderMainController {
     private Text logText;
     @FXML
     private TextArea logBookTextArea;
+
     @FXML
-    private void initialize(){
+    private void initialize() {
         producentText.setText("no siema");
         producentChoiceBox.setItems(producentList);
     }
+
     @FXML
     public void editToken() {
         try {
@@ -51,10 +54,10 @@ public class BorderMainController {
         fc.setTitle("Wczytaj plik");
         fc.setInitialDirectory(new File(System.getProperty("user.home") + "/Desktop"));
         fc.getExtensionFilters().add(
-          new FileChooser.ExtensionFilter("CSV Files", "*.csv")
+                new FileChooser.ExtensionFilter("CSV Files", "*.csv")
         );
-        File selectedFile = fc.showOpenDialog(null);
-        if(selectedFile != null)
+        selectedFile = fc.showOpenDialog(null);
+        if (selectedFile != null)
             loadFileText.setText(selectedFile.getName());
         else
             loadFileText.setText("Brak pliku do wczytania");
@@ -62,7 +65,6 @@ public class BorderMainController {
 
     @FXML
     public void uploadFile() {
-
     }
 
     @FXML
