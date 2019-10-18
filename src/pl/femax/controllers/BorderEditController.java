@@ -90,5 +90,8 @@ public class BorderEditController {
         products.add(new Producent(str[2], str[3]));
         return products;
     }
+    public void writeFile(ObservableList<Producent> products){
+
+    }
 
 }
