@@ -9,12 +9,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import pl.femax.model.Producent;
-
 import java.io.*;
-import java.util.logging.FileHandler;
 
 public class BorderEditController {
-    private String tokenCersanit = "1223141251253";
     ObservableList<Producent> products;
     @FXML
     TableView<Producent> tokenTableView;
@@ -39,18 +36,17 @@ public class BorderEditController {
             r = new BufferedReader(new FileReader(f));
             String readLine ="";
             while((readLine = r.readLine()) != null){
-                str[i] = readLine;
+                str[i] = readLine.replaceAll(" ","");
                 i++;
             }
             logText.setText("Tokeny załadowanie poprawnie");
-
         } catch (FileNotFoundException e) {
             logText.setText("Błąd podczas ładowania tokenów");
             logText.setStyle("-fx-fill: red; -fx-font-size: 25px;");
         }
         producentTableColumn.setCellValueFactory(new PropertyValueFactory<>("producent"));
         tokenTableColumn.setCellValueFactory(new PropertyValueFactory<>("token"));
-        tokenTableView.setItems(getProducent());
+        tokenTableView.setItems(getProducent(str));
         tokenTableView.getColumns().addAll(producentTableColumn, tokenTableColumn);
     }
 
@@ -81,7 +77,6 @@ public class BorderEditController {
                     tokenTableView.refresh();
                     break;
                 } else if (producentTextField.getText() != x.getProducent()) {
-                    System.out.println("tu tez jestem");
                     logText.setText("Niepoprawny producent");
                     logText.setStyle("-fx-fill: red; -fx-font-size: 25px;");
                 }
@@ -89,10 +84,10 @@ public class BorderEditController {
         }
     }
 
-    public ObservableList<Producent> getProducent() {
+    public ObservableList<Producent> getProducent(String[] str) {
         products = FXCollections.observableArrayList();
-        products.add(new Producent("Cersanit", "sadasdasdsadasdasd123123"));
-        products.add(new Producent("Grohe", "12414sdasd124"));
+        products.add(new Producent(str[0], str[1]));
+        products.add(new Producent(str[2], str[3]));
         return products;
     }
 
