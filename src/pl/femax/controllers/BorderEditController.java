@@ -75,6 +75,7 @@ public class BorderEditController {
                     logText.setText("Token zaktualizowany poprawnie");
                     logText.setStyle("-fx-fill: green; -fx-font-size: 25px;");
                     tokenTableView.refresh();
+                    writeFile(products);
                     break;
                 } else if (producentTextField.getText() != x.getProducent()) {
                     logText.setText("Niepoprawny producent");
@@ -91,6 +92,23 @@ public class BorderEditController {
         return products;
     }
     public void writeFile(ObservableList<Producent> products){
+        try {
+            BufferedWriter bW = new BufferedWriter(new FileWriter("token.txt"));
+            products.forEach(x -> {
+                try {
+                    bW.write(x.getProducent());
+                    bW.newLine();
+                    bW.write(x.getToken());
+                    bW.newLine();
+                    System.out.println(products);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            bW.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
