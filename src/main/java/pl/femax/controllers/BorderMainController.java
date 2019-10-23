@@ -12,7 +12,14 @@ import javafx.scene.control.TextArea;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import pl.femax.model.DataDownloader;
+
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.util.Arrays;
 
 public class BorderMainController {
     ObservableList producentList = FXCollections.observableArrayList("Cersanit", "Grohe");
@@ -27,6 +34,8 @@ public class BorderMainController {
     private Text logText;
     @FXML
     private TextArea logBookTextArea;
+
+    private PrintWriter writer;
 
     @FXML
     private void initialize() {
@@ -72,5 +81,27 @@ public class BorderMainController {
 
     @FXML
     public void generateNewFile() {
+        writeImages();
+    }
+
+    public String[] writeImages(){
+        DataDownloader dataDownloader = new DataDownloader();
+        try {
+            String str = dataDownloader.downloadData();
+            String strGood = str.substring(1, str.length()-1);
+            String[] str1 = strGood.split(",");
+            writer = new PrintWriter("test.txt", "UTF-8");
+            for(String a : str1)
+                writer.print(a.trim()+";");
+            writer.close();
+            return str1;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
