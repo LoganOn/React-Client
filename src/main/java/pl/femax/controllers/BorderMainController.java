@@ -13,17 +13,22 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import pl.femax.model.DataDownloader;
+import pl.femax.model.Input;
+import pl.femax.model.Producent;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import javax.xml.transform.sax.SAXSource;
+import java.io.*;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class BorderMainController {
-    ObservableList producentList = FXCollections.observableArrayList("Cersanit", "Grohe");
-    File selectedFile;
+    private ObservableList producentList = FXCollections.observableArrayList("Cersanit", "Grohe");
+    private File selectedFile;
+    private List<Input> inputList = new ArrayList<>();
+    private final String headerPattern = "product_code;producer_code;name";
+    private DataDownloader dataDownloader ;
     @FXML
     private ChoiceBox producentChoiceBox;
     @FXML
@@ -32,14 +37,18 @@ public class BorderMainController {
     private Text loadFileText;
     @FXML
     private Text logText;
+
     @FXML
     private TextArea logBookTextArea;
 
     private PrintWriter writer;
 
+    private String str[] = new String[10];
+
     @FXML
     private void initialize() {
         producentChoiceBox.setItems(producentList);
+        dataDownloader = new DataDownloader();
     }
 
     @FXML
@@ -72,6 +81,13 @@ public class BorderMainController {
 
     @FXML
     public void uploadFile() {
+        if (selectedFile != null) {
+            readInput(inputList);
+            logText.setText("Znaleziono: " + String.valueOf(inputList.size()) +" produktów do zaktualizowania");
+            inputList.forEach(System.out::println);
+            inputList.toString();
+        } else
+            loadFileText.setText("Brak pliku do wczytania");
     }
 
     @FXML
@@ -84,15 +100,15 @@ public class BorderMainController {
         writeImages();
     }
 
-    public String[] writeImages(){
-        DataDownloader dataDownloader = new DataDownloader();
+    public String[] writeImages() {
+       // DataDownloader dataDownloader = new DataDownloader();
         try {
             String str = dataDownloader.downloadData();
-            String strGood = str.substring(1, str.length()-1);
+            String strGood = str.substring(1, str.length() - 1);
             String[] str1 = strGood.split(",");
             writer = new PrintWriter("test.txt", "UTF-8");
-            for(String a : str1)
-                writer.print(a.trim()+";");
+            for (String a : str1)
+                writer.print(a.trim() + ";");
             writer.close();
             return str1;
         } catch (MalformedURLException e) {
@@ -100,6 +116,28 @@ public class BorderMainController {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public List<Input> readInput(List<Input> inputs) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(selectedFile));
+            String st = br.readLine();
+            String st1 = st.substring(1, st.length());
+            if (st1.equals(headerPattern)) {
+                while ((st = br.readLine()) != null) {
+                    String[] str = st.split(";");
+                    inputs.add(new Input(str[0], str[1], str[2]));
+                }
+                return inputs;
+            } else {
+                logBookTextArea.setText("Niewłaściwy plik");
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return null;

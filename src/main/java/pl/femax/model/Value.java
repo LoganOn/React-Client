@@ -5,7 +5,6 @@ public class Value {
     private String url;
 
     public Value(){
-
     }
     @Override
     public String toString(){

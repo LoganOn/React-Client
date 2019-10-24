@@ -72,7 +72,7 @@ public class BorderEditController {
                 }
             } else if (producentTextField.getLength() != 0 && tokenTextField.getLength() != 0) {
                 for (Producent x : products) {
-                    if (producentTextField.getText().equals(x.getProducent())) {
+                    if (producentTextField.getText().equalsIgnoreCase(x.getProducent())) {
                         x.setToken(tokenTextField.getText());
                         logText.setText("Token zaktualizowany poprawnie");
                         logText.setStyle("-fx-fill: green; -fx-font-size: 25px;");

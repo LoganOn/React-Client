@@ -8,13 +8,10 @@ public class DataObject {
     private List<Blocks> blocks;
 
     public DataObject(){
-
     }
 
     @Override
     public String toString(){
         return ""+images;
     }
-
-
 }
