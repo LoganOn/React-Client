@@ -25,6 +25,10 @@ public class BorderMainController {
     private File selectedFile;
     private List<Input> inputList = new ArrayList<>();
     private final String headerPattern = "product_code;producer_code;name";
+    private final String HEADER = "product_code;active;producer;producer_code;name;category;rank;rank_votes;\"images 1\";\"images 2\";\"images 3\";\"images 4\";\"images 5\";\"images 6\";\"images 7\";\"images 8\";" +
+            "\"images 9\";\"images 10\";\"images 11\";\"images 12\";\"images 13\";\"images 14\";\"images 15\";\"images 16\";\"images 17\";\"images 18\";\"images 19\";\"images 20\";\"images 21\";\"images 22\"" +
+            ";\"images 23\";\"images 24\";\"images 25\";\"images 26\";\"images 27\";\"images 28\";\"images 29\";\"images 30\";\"images 31\";\"images 32\";\"images 33\";\"images 34\";\"images 35\";\"images 36\"" +
+            ";\"images 37\";\"images 38\";\"images 39\";\"images 40\";\"images 41\";\"images 42\";\"images 43\";\"images 44\";\"images 45\";\"images 46\";\"images 47\";\"images 48\";\"images 49\";\"images 50\"";
     private DataDownloader dataDownloader;
     @FXML
     private ChoiceBox producentChoiceBox;
@@ -42,6 +46,7 @@ public class BorderMainController {
 
     private String str[] = new String[10];
 
+
     public BorderMainController() {
     }
 
@@ -49,6 +54,13 @@ public class BorderMainController {
     private void initialize() {
         producentChoiceBox.setItems(producentList);
         dataDownloader = new DataDownloader();
+        try {
+            writer = new PrintWriter("test.csv", "UTF-8");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -97,17 +109,35 @@ public class BorderMainController {
 
     @FXML
     public void generateNewFile() {
-        dataDownloader.setToken(getChoice());
-        String id = dataDownloader.downloadID("39538000");
-        writeImages(id);
+            dataDownloader.setToken(getChoice());
 
-//        logBookTextArea.appendText(logs);
-//        dataDownloader.setToken();
-//        System.out.println(logs);
-//        logBookTextArea.appendText(logs);
-        //setLogBookTextArea(logs);
+            String id;
+            int i = 1;
+            writer.println(HEADER);
+            for (Input x : inputList) {
+                logBookTextArea.setStyle("-fx-fill: black;-fx-font-size: 12px;");
+                logBookTextArea.appendText("Czytam " +i+" produkt");
+                id = dataDownloader.downloadID(x.getProducer_code());
+                writer.print(x.getProduct_code() + ';');
+                writer.print("0;");
+                writer.print(producentChoiceBox.getSelectionModel().getSelectedItem().toString().toUpperCase() + ";");
+                writer.print(x.getProducer_code() + ";");
+                writer.print(x.getName() + ";");
+                writer.print("Import - bez kategorii;");
+                writer.print("4.6;");
+                writer.print("20;");
+                writeImages(id);
+                logBookTextArea.setStyle("-fx-fill: green;-fx-font-size: 12px;");
+                logBookTextArea.appendText("OK");
+                logBookTextArea.appendText("\n");
+                i++;
+            }
+        System.out.println("Koniec");
+        logBookTextArea.appendText("Koniec");
+        writer.close();
     }
-    public String getChoice(){
+
+    public String getChoice() {
         return producentChoiceBox.getSelectionModel().getSelectedItem().toString();
     }
 
@@ -116,19 +146,17 @@ public class BorderMainController {
             String str = dataDownloader.downloadData(id);
             String strGood = str.substring(1, str.length() - 1);
             String[] images = strGood.split(",");
-            writer = new PrintWriter("test.txt", "UTF-8");
+
             for (String a : images)
                 writer.print(a.trim() + ";");
-            writer.close();
+            for (int i = 0; i < (49 - images.length); i++)
+                writer.print(';');
+            writer.println();
             return images;
         } catch (MalformedURLException e) {
             e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     public List<Input> readInput(List<Input> inputs) {
@@ -152,11 +180,4 @@ public class BorderMainController {
         }
         return null;
     }
-
-//    public static void setLogBookTextArea(String logs) {
-//        logBookTextArea.appendText(logs);
-//    }
-//    public void setLogBookTextArea(String logs) {
-//        this.logBookTextArea.setText(logs);
-//    }
 }

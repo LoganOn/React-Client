@@ -5,7 +5,7 @@ import java.util.List;
 public class DataObject {
     private String id;
     private List<Images> images;
-    private List<Blocks> blocks;
+   // private List<Blocks> blocks;
 
     public DataObject(){
     }

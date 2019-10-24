@@ -16,7 +16,6 @@ public class DataDownloader {
     private final String urlSearch = "https://cl.estorecontent.com/api/v2/product-list/?token=";
     private final String urlID = " https://cl.estorecontent.com/api/v2/product-detail/";
     private String token = "";
-    private BorderMainController borderMainController;
     private List<Producent> producents;
 
     public DataDownloader() {
