@@ -14,13 +14,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import pl.femax.model.DataDownloader;
 import pl.femax.model.Input;
-import pl.femax.model.Producent;
 
-import javax.xml.transform.sax.SAXSource;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class BorderMainController {
@@ -28,7 +25,7 @@ public class BorderMainController {
     private File selectedFile;
     private List<Input> inputList = new ArrayList<>();
     private final String headerPattern = "product_code;producer_code;name";
-    private DataDownloader dataDownloader ;
+    private DataDownloader dataDownloader;
     @FXML
     private ChoiceBox producentChoiceBox;
     @FXML
@@ -44,6 +41,9 @@ public class BorderMainController {
     private PrintWriter writer;
 
     private String str[] = new String[10];
+
+    public BorderMainController() {
+    }
 
     @FXML
     private void initialize() {
@@ -83,7 +83,7 @@ public class BorderMainController {
     public void uploadFile() {
         if (selectedFile != null) {
             readInput(inputList);
-            logText.setText("Znaleziono: " + String.valueOf(inputList.size()) +" produktów do zaktualizowania");
+            logText.setText("Znaleziono: " + String.valueOf(inputList.size()) + " produktów do zaktualizowania");
             inputList.forEach(System.out::println);
             inputList.toString();
         } else
@@ -97,20 +97,30 @@ public class BorderMainController {
 
     @FXML
     public void generateNewFile() {
-        writeImages();
+        dataDownloader.setToken(getChoice());
+        String id = dataDownloader.downloadID("39538000");
+        writeImages(id);
+
+//        logBookTextArea.appendText(logs);
+//        dataDownloader.setToken();
+//        System.out.println(logs);
+//        logBookTextArea.appendText(logs);
+        //setLogBookTextArea(logs);
+    }
+    public String getChoice(){
+        return producentChoiceBox.getSelectionModel().getSelectedItem().toString();
     }
 
-    public String[] writeImages() {
-       // DataDownloader dataDownloader = new DataDownloader();
+    public String[] writeImages(String id) {
         try {
-            String str = dataDownloader.downloadData();
+            String str = dataDownloader.downloadData(id);
             String strGood = str.substring(1, str.length() - 1);
-            String[] str1 = strGood.split(",");
+            String[] images = strGood.split(",");
             writer = new PrintWriter("test.txt", "UTF-8");
-            for (String a : str1)
+            for (String a : images)
                 writer.print(a.trim() + ";");
             writer.close();
-            return str1;
+            return images;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (FileNotFoundException e) {
@@ -142,4 +152,11 @@ public class BorderMainController {
         }
         return null;
     }
+
+//    public static void setLogBookTextArea(String logs) {
+//        logBookTextArea.appendText(logs);
+//    }
+//    public void setLogBookTextArea(String logs) {
+//        this.logBookTextArea.setText(logs);
+//    }
 }
