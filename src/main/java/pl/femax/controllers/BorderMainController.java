@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.text.Text;
@@ -16,20 +17,28 @@ import pl.femax.model.DataDownloader;
 import pl.femax.model.Input;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 
 public class BorderMainController {
-    private ObservableList producentList = FXCollections.observableArrayList("Cersanit", "Grohe");
-    private File selectedFile;
-    private List<Input> inputList = new ArrayList<>();
+
     private final String headerPattern = "product_code;producer_code;name";
     private final String HEADER = "product_code;active;producer;producer_code;name;category;rank;rank_votes;\"images 1\";\"images 2\";\"images 3\";\"images 4\";\"images 5\";\"images 6\";\"images 7\";\"images 8\";" +
             "\"images 9\";\"images 10\";\"images 11\";\"images 12\";\"images 13\";\"images 14\";\"images 15\";\"images 16\";\"images 17\";\"images 18\";\"images 19\";\"images 20\";\"images 21\";\"images 22\"" +
             ";\"images 23\";\"images 24\";\"images 25\";\"images 26\";\"images 27\";\"images 28\";\"images 29\";\"images 30\";\"images 31\";\"images 32\";\"images 33\";\"images 34\";\"images 35\";\"images 36\"" +
             ";\"images 37\";\"images 38\";\"images 39\";\"images 40\";\"images 41\";\"images 42\";\"images 43\";\"images 44\";\"images 45\";\"images 46\";\"images 47\";\"images 48\";\"images 49\";\"images 50\"";
     private DataDownloader dataDownloader;
+    private ObservableList producentList = FXCollections.observableArrayList("Grohe");
+    private File selectedFile;
+    private List<Input> inputList = new ArrayList<>();
+    private PrintWriter writer;
+    private String str[] = new String[10];
+    private String id;
+    private int correct = 0;
+    private int incorrect = 0;
     @FXML
     private ChoiceBox producentChoiceBox;
     @FXML
@@ -38,22 +47,18 @@ public class BorderMainController {
     private Text loadFileText;
     @FXML
     private Text logText;
-
+    @FXML
+    private Button gButton;
     @FXML
     private TextArea logBookTextArea;
 
-    private PrintWriter writer;
-
-    private String str[] = new String[10];
-
-
-    public BorderMainController() {
-    }
 
     @FXML
     private void initialize() {
         producentChoiceBox.setItems(producentList);
+        producentChoiceBox.setValue("Grohe");
         dataDownloader = new DataDownloader();
+        gButton.setDisable(true);
         try {
             writer = new PrintWriter("test.csv", "UTF-8");
         } catch (FileNotFoundException e) {
@@ -62,6 +67,7 @@ public class BorderMainController {
             e.printStackTrace();
         }
     }
+
 
     @FXML
     public void editToken() {
@@ -95,9 +101,8 @@ public class BorderMainController {
     public void uploadFile() {
         if (selectedFile != null) {
             readInput(inputList);
-            logText.setText("Znaleziono: " + String.valueOf(inputList.size()) + " produktów do zaktualizowania");
-            inputList.forEach(System.out::println);
-            inputList.toString();
+            logText.setText("Znaleziono: " + inputList.size() + " produktów do zaktualizowania");
+            gButton.setDisable(false);
         } else
             loadFileText.setText("Brak pliku do wczytania");
     }
@@ -109,15 +114,23 @@ public class BorderMainController {
 
     @FXML
     public void generateNewFile() {
-            dataDownloader.setToken(getChoice());
-
-            String id;
+        ExecutorService ex = Executors.newSingleThreadExecutor();
+        dataDownloader.setToken(getChoice());
+        logBookTextArea.setStyle("-fx-fill: black;-fx-font-size: 12px;");
+        ex.execute(() -> {
             int i = 1;
             writer.println(HEADER);
             for (Input x : inputList) {
-                logBookTextArea.setStyle("-fx-fill: black;-fx-font-size: 12px;");
-                logBookTextArea.appendText("Czytam " +i+" produkt");
                 id = dataDownloader.downloadID(x.getProducer_code());
+                logBookTextArea.appendText("Czytam " + i + " produkt");
+                logBookTextArea.appendText("\n");
+                if (id.length() == 0) {
+                    logBookTextArea.appendText("Nie można dodac produktu");
+                    logBookTextArea.appendText("\n");
+                    i++;
+                    incorrect++;
+                    continue;
+                }
                 writer.print(x.getProduct_code() + ';');
                 writer.print("0;");
                 writer.print(producentChoiceBox.getSelectionModel().getSelectedItem().toString().toUpperCase() + ";");
@@ -126,15 +139,18 @@ public class BorderMainController {
                 writer.print("Import - bez kategorii;");
                 writer.print("4.6;");
                 writer.print("20;");
-                writeImages(id);
-                logBookTextArea.setStyle("-fx-fill: green;-fx-font-size: 12px;");
-                logBookTextArea.appendText("OK");
+                writeImages(dataDownloader.downloadID(x.getProducer_code()));
+                logBookTextArea.appendText("Produkt dodany prawidłowo");
                 logBookTextArea.appendText("\n");
                 i++;
+                correct++;
             }
-        System.out.println("Koniec");
-        logBookTextArea.appendText("Koniec");
-        writer.close();
+            logBookTextArea.appendText("Prawidłowo pobrano informacje dla: " + correct + " produktów");
+            logBookTextArea.appendText("\n");
+            logBookTextArea.appendText("Nie można pobrać informacje dla: " + incorrect + " produktów");
+            writer.close();
+            gButton.setDisable(true);
+        });
     }
 
     public String getChoice() {
@@ -142,24 +158,22 @@ public class BorderMainController {
     }
 
     public String[] writeImages(String id) {
-        try {
-            String str = dataDownloader.downloadData(id);
-            String strGood = str.substring(1, str.length() - 1);
-            String[] images = strGood.split(",");
+        String str = dataDownloader.downloadData(id);
+        String strGood = str.substring(1, str.length() - 1);
+        String[] images = strGood.split(",");
 
-            for (String a : images)
-                writer.print(a.trim() + ";");
-            for (int i = 0; i < (49 - images.length); i++)
-                writer.print(';');
-            writer.println();
-            return images;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return null;
-        }
+        for (String a : images)
+            writer.print(a.trim() + ";");
+        for (int i = 0; i < (49 - images.length); i++)
+            writer.print(';');
+        writer.println();
+        return images;
     }
 
+
     public List<Input> readInput(List<Input> inputs) {
+        if (inputs.size() != 0)
+            inputs.clear();
         try {
             BufferedReader br = new BufferedReader(new FileReader(selectedFile));
             String st = br.readLine();
@@ -171,7 +185,7 @@ public class BorderMainController {
                 }
                 return inputs;
             } else {
-                logBookTextArea.setText("Niewłaściwy plik");
+                logBookTextArea.setText("Niewłaściwe dane wejściowe");
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();

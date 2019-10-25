@@ -137,7 +137,7 @@
     <bottom>
         <HBox alignment="CENTER" prefHeight="65.0" prefWidth="600.0" spacing="250.0" BorderPane.alignment="CENTER">
             <children>
-                <Button mnemonicParsing="false" onAction="#generateNewFile" prefHeight="30.0" prefWidth="120.0" text="Generuj nowy plik" />
+                <Button fx:id="gButton" mnemonicParsing="false" onAction="#generateNewFile" prefHeight="30.0" prefWidth="120.0" text="Generuj nowy plik" />
                 <Button mnemonicParsing="false" onAction="#goQuit" prefHeight="30.0" prefWidth="120.0" text="Wyjście" />
             </children>
         </HBox>

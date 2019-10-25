@@ -2,8 +2,6 @@ package pl.femax.model;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import pl.femax.controllers.BorderMainController;
-
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -11,34 +9,33 @@ import java.util.List;
 
 public class DataDownloader {
     private File f;
-    private String data;
     private Reader reader;
     private final String urlSearch = "https://cl.estorecontent.com/api/v2/product-list/?token=";
     private final String urlID = " https://cl.estorecontent.com/api/v2/product-detail/";
     private String token = "";
-    private List<Producent> producents;
 
     public DataDownloader() {
         this.f = new File("token.txt");
     }
 
-    public String downloadData(String id) throws MalformedURLException {
+    public String downloadData(String id) {
         String idUrl = (urlID + id + "/?token=" + token);
         System.out.println(idUrl);
-        try {
-            reader = new InputStreamReader(new URL(idUrl).openStream());
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (id.length() != 0) {
+            try {
+                reader = new InputStreamReader(new URL(idUrl).openStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Gson gson = new GsonBuilder().create();
+            try {
+                DataObject dataObject = gson.fromJson(reader, DataObject.class);
+                return dataObject.toString();
+            } catch (IllegalStateException e) {
+                System.out.println(e);
+            }
         }
-        Gson gson = new GsonBuilder().create();
-        try {
-             DataObject dataObject = gson.fromJson(reader, DataObject.class);
-            EAN ean = gson.fromJson(reader, EAN.class);
-              return dataObject.toString();
-        } catch (IllegalStateException e) {
-            System.out.println(e);
-        }
-        return idUrl;
+        return null;
     }
 
     public String setToken(String producent) {
@@ -58,13 +55,8 @@ public class DataDownloader {
                     break;
                 }
             }
-            System.out.println("Token to: " + token);
-            //borderMainController.setLogs("Tokeny załadowanie poprawnie");
-            // borderMainController.getLogBookTextArea().setText("siema");
-            // borderMainController.updatedTextArea();
         } catch (FileNotFoundException e) {
-            //borderMainController.setLogs("Tokenów nie załądowano");
-            //borderMainController.setStyle("-fx-fill: red; -fx-font-size: 25px;");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,6 +80,7 @@ public class DataDownloader {
         } catch (IllegalStateException e) {
             System.out.println(e);
         }
+
         return null;
     }
 }
