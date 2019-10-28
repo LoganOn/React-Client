@@ -15,9 +15,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import pl.femax.model.DataDownloader;
 import pl.femax.model.Input;
-
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,8 +36,10 @@ public class BorderMainController {
     private File selectedFile;
     private List<Input> inputList = new ArrayList<>();
     private PrintWriter writer;
+    //private BufferedWriter writer;
     private String str[] = new String[10];
     private String id;
+    private String nameFile;
     private int correct = 0;
     private int incorrect = 0;
     @FXML
@@ -55,17 +58,17 @@ public class BorderMainController {
 
     @FXML
     private void initialize() {
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy-HH-mm-ss");
+        nameFile = "React-Client-" + formatter.format(date) +".csv";
+        StringBuilder sb = new StringBuilder(nameFile);
+        System.out.println(nameFile);
         producentChoiceBox.setItems(producentList);
         producentChoiceBox.setValue("Grohe");
         dataDownloader = new DataDownloader();
         gButton.setDisable(true);
-        try {
-            writer = new PrintWriter("test.csv", "UTF-8");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+
+
     }
 
 
@@ -114,10 +117,18 @@ public class BorderMainController {
 
     @FXML
     public void generateNewFile() {
+        try {
+            writer = new PrintWriter(nameFile, "UTF-8");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         ExecutorService ex = Executors.newSingleThreadExecutor();
         dataDownloader.setToken(getChoice());
         logBookTextArea.setStyle("-fx-fill: black;-fx-font-size: 12px;");
         ex.execute(() -> {
+            System.out.println("2");
             int i = 1;
             writer.println(HEADER);
             for (Input x : inputList) {
@@ -177,15 +188,22 @@ public class BorderMainController {
         try {
             BufferedReader br = new BufferedReader(new FileReader(selectedFile));
             String st = br.readLine();
-            String st1 = st.substring(1, st.length());
-            if (st1.equals(headerPattern)) {
+            System.out.println(st);
+            if (st.equals(headerPattern)) {
                 while ((st = br.readLine()) != null) {
                     String[] str = st.split(";");
                     inputs.add(new Input(str[0], str[1], str[2]));
                 }
                 return inputs;
             } else {
+                logBookTextArea.setStyle("-fx-fill: black;-fx-font-size: 12px;");
                 logBookTextArea.setText("Niewłaściwe dane wejściowe");
+                logBookTextArea.appendText("\n");
+                logBookTextArea.appendText("Spodziewany nagłowek: ");
+                logBookTextArea.appendText(headerPattern);
+                logBookTextArea.appendText("\n");
+                logBookTextArea.appendText("Nagłowek pliku wejsciowego:");
+                logBookTextArea.appendText(st);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();

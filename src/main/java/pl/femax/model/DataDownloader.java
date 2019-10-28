@@ -3,9 +3,7 @@ package pl.femax.model;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 
 public class DataDownloader {
     private File f;

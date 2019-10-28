@@ -8,6 +8,9 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 import pl.femax.model.Producent;
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 public class BorderEditController {
@@ -54,7 +57,7 @@ public class BorderEditController {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Aktualizacja Tokena");
         alert.setHeaderText("Czy na pewno chcesz, zaktualizować token ?");
-        alert.setContentText("Tekst do ustalenia / ew usuniecia");
+        alert.setContentText("Tej operacji nie będzie można cofnąć");
         Optional<ButtonType> result = alert.showAndWait();
         if(result.get() == ButtonType.OK){
             producentTextField.setText(producentTextField.getText().replaceAll(" ", ""));

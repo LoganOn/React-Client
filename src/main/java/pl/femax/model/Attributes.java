@@ -1,7 +1,5 @@
 package pl.femax.model;
 
-import java.util.List;
-
 public class Attributes {
     private String name;
    // private List<Value>value;
